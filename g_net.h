@@ -1,7 +1,35 @@
 #ifndef G_NET_H
 #define G_NET_H
 
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#define NOGDI
+#define NOUSER
+#include <windows.h>
+#include <winsock2.h>
+#include <ws2tcpip.h>   /* inet_pton, inet_ntop, struct in6_addr, INET_* macros */
+
+/* MinGW (especially 32‑bit) may miss some POSIXy types / macros */
+#ifndef INET_ADDRSTRLEN
+#define INET_ADDRSTRLEN 16
+#endif
+
+#ifndef INET6_ADDRSTRLEN
+#define INET6_ADDRSTRLEN 46
+#endif
+
+#ifndef in_addr_t
+typedef unsigned long in_addr_t;
+#endif
+
+#else
+#include <sys/socket.h>
+#include <netinet/in.h>
 #include <arpa/inet.h>
+#include <netdb.h>
+#endif
+#include <stdint.h>
+
 #define IP4_LEN  4
 #define IP6_LEN 16
 

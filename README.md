@@ -1,8 +1,65 @@
 # OpenTDM
 
+# Changes in this fork
+
+- Linux: fixed compilation for gcc
+- Linux: added cross compilation for win32/win64
+
+# Building
+
+## Prerequisites
+
+Dependencies might be missing and some are probably excessive.
+I didn't optimize this as it's time/cost not effective for me.
+Best might be to use Docker for the job.
+
+```bash
+# Tested on CachyOS
+sudo pacman -S cmake gcc
+
+# For cross compilation
+sudo pacman -S \
+    mingw-w64-tools \
+    mingw-w64-binutils \
+    mingw-w64-crt \
+    mingw-w64-gcc \
+    mingw-w64-headers \
+    mingw-w64-winpthreads
+paru -S \
+    mingw-w64-zlib \
+    mingw-w64-zlib-ng \
+    mingw-w64-ffmpeg \
+    mingw-w64-pkg-config \
+    mingw-w64-libpng \
+    mingw-w64-libjpeg-turbo \
+    mingw-w64-openal \
+    mingw-w64-zstd
+```
+
+## Compilation
+
+Review scripts before executing them.
+
+```bash
+./build-lin64.sh
+./clean.sh
+./build-win32.sh
+./clean.sh
+./build-win64.sh
+```
+
+# TODO
+
+- add/change README.md
+- fix compilation warnings
+- get rid of `deps` folder
+
+# Old part of README.md below
+
 OpenTDM is an open source team deathmatch and duel mod for Quake II. Origially written by r1ch
 
 ## Client Commands
+
 `commands` Show available commands
 
 `id` Enable player ID of whoever is closest to your crosshair
@@ -68,6 +125,7 @@ OpenTDM is an open source team deathmatch and duel mod for Quake II. Origially w
 `armortimer` Start a 20 second armor timer
 
 ## Client Macros
+
 `%h` Shows your current health - `H:100`
 
 `%H` Alias for `%h`
@@ -93,6 +151,7 @@ OpenTDM is an open source team deathmatch and duel mod for Quake II. Origially w
 `%M` The ammo name of the current weapon of your nearest teammate (for dropping to them) - `Rockets`
 
 ## Team Captain Commands
+
 `kickplayer/removeplayer/remove <id>` Remove a player from your team
 
 `lock/lockteam` Locks a team, prevents anyone from joining it
@@ -116,6 +175,7 @@ OpenTDM is an open source team deathmatch and duel mod for Quake II. Origially w
 `specinvite <id>` Allow particular spectators to observe a speclocked team
 
 ## Admin/Referee Commands
+
 `acommands` Show admin command list
 
 `overtime/ot <0/1/2> [minutes]` Set the overtime mode
@@ -169,6 +229,7 @@ Value | Description
 `sv demostatus` See the current status of server demo
 
 ## Server CVARs
+
 `g_admin_password <string>` Admin/referee password
 
 `g_admin_vote_decide <0/1>` Whether admin instantly decides votes
