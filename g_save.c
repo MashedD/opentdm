@@ -109,6 +109,7 @@ void InitGame(void) {
 
     // noset vars
     dedicated = gi.cvar("dedicated", "0", CVAR_NOSET);
+    aimfix = gi.cvar("aimfix", "0", 0);
 
     // latched vars
     sv_cheats = gi.cvar("cheats", "0", CVAR_SERVERINFO | CVAR_LATCH);

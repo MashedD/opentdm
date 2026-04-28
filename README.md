@@ -4,6 +4,7 @@
 
 - Linux: fixed compilation for gcc
 - Linux: added cross compilation for win32/win64
+- Added `aimfix` as in  `q2pro` game library, `3zb2-zigflag` and others. Off by default
 
 # Building
 
