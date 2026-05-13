@@ -51,7 +51,6 @@ Review scripts before executing them.
 
 # TODO
 
-- add/change README.md
 - fix compilation warnings
 - get rid of `deps` folder
 
@@ -235,6 +234,8 @@ Value | Description
 
 `g_admin_vote_decide <0/1>` Whether admin instantly decides votes
 
+`aimfix <0/1>` Enable aim fix (q2pro/3zb2-zigflag style). Changes how aiming prediction works, *default: 0*
+
 `g_team_a_name <string>` The name for the first team
 
 `g_team_b_name <string>` The name for the second team
@@ -250,6 +251,8 @@ Value | Description
 `g_match_time <integer>` Match time limit in seconds, *default: 600*
 
 `g_match_countdown <integer>` Match countdown time in seconds, *default: 15*
+
+`g_max_players_per_team <integer>` Maximum number of players allowed per team, *default: 4*
 
 `g_vote_time <integer>` How long votes last in seconds, *default: 30*
 
@@ -321,6 +324,8 @@ Value | Item
 128 | environment suit
  | *default: 0*
 
+`g_playerconfig_enabled <0/1>` Allow downloading of player configs on connect, *default: 1*
+
 `g_gamemode <0/1/2>` The game mode
 
 Value | Description
@@ -329,6 +334,8 @@ Value | Description
 1 | instagib team deathmatch mode
 2 | duel mode
  | *default: 0*
+
+`g_highlight_captain <0/1>` Put a `*` next to the captain in the scoreboard in team games, *default: 0*
 
 `g_tie_mode <0/1/2>` What to do if a match is tied
 
@@ -339,7 +346,13 @@ Value | Description
 2 | sudden death, next frag wins 
  | *default: 1* 
 
+`g_timeout_limit <integer>` Maximum number of timeouts allowed per client (0 = unlimited), *default: 2*
+
+`g_timeout_captain <0/1>` Only allow team captains to call timeouts, *default: 0*
+
 `g_overtime <integer>` Overtime in seconds if g_tie_mode set to 1, *default: 60*
+
+`g_ping_handicap <integer>` Display super low pings around this value instead of real ping, *default: 0*
 
 `g_chat_mode <0/1/2>` How players are allowed to chat
 
@@ -349,6 +362,8 @@ Value | Description
 1 | Players chat freely, spectators only with other spectators
 2 | Only players can talk
  | *default: 0*
+
+`g_debug_spawns <0/1>` Enable debug spawn testing (verbose spawn location info), *default: 0*
 
 `g_teleporter_nofreeze <0/1>`
 
@@ -398,6 +413,8 @@ Value | Description
 
 `g_auto_rejoin_map <0/1>` Players from previous map will/won't rejoin teams automatically, *default: 1*
 
+`g_armor_timer <0/1>` Enable the in-hud armor timer (client armortimer command), *default: 1*
+
 `g_motd_message <string>` Sets message of the day
 
 `g_allow_name_change_during_match <0/1>` Players can't/can change names during match, *default: 1*
@@ -410,6 +427,8 @@ Value | Description
 
 `g_http_domain <string>` Domain for webconfig/playerconfig downloads, *default: opentdm.org*
 
+`g_http_debug <0/1>` Enable libcurl debug messages, *default: 0*
+
 `g_http_path <string>` URL path for websconfig/playerconfig downloads, *default: /*
 
 `g_1v1_spawn_mode <0/1/2>` How spawns are picked in duel mode
@@ -420,6 +439,8 @@ Value | Description
 1 | 3.20, fixed
 2 | true random
  | *default: 1*
+
+`g_1v1_timeout <integer>` Max timeout in seconds for implicit timeout in 1v1 disconnect, *default: 60*
 
 `g_tdm_spawn_mode <0/1/2>` How spawns are picked in TDM mode, *default: 1*
 
@@ -475,6 +496,8 @@ Value | Description
 1 | Record every match
 2 | Record every match and compress them on the fly with zlib 
 
+`g_ready_attention <0/1>` Stop warmup players from shooting until match starts, *default: 0*
+
 `g_weapon_hud <integer>` Allow the weapon hud, *default: 1 (enabled)* Players can enable/disable the hud in their client using the `hud` command or setting the proper userflag: `set uf "256" u` 
 
 Value | Description
@@ -484,12 +507,17 @@ Value | Description
 2 | `Default` Hud on by default for all players, they can still turn it off if they like 
 3 | `Forced` Hud is forced on for all players, they can't turn it off
 
+`g_weapon_timer <0/1>` Enable the weapontimer command, *default: 1*
 
 `g_respawn_weapon <seconds>` Set a custom respawn time for guns. Default 30
 
 `g_respawn_ammo <seconds>` Set a custom respawn time for ammo (and health (and stims). Default 30
 
 `g_respawn_armor <seconds>` Set a custom respawn time for armor (and shards). Default 20
+
+`g_respawn_health <seconds>` Set a custom respawn time for health (and stims). Default 30
+
+`g_respawn_mega <seconds>` Set a custom respawn time for mega health. Default 20
 
 `g_respawn_quad <seconds>` Set a custom respawn time for quad damage. Default 60
 
@@ -501,7 +529,9 @@ Value | Description
 
 `g_respawn_adren <seconds>` Set a custom respawn time for adrenaline. Default 60
 
-`g_randommapfile <string>` Set the file to use inside the game folder that holds the random map config. Random map voting allows players to get a random known-good map of appropriate size. Each line of this file starts with a map name (minus the .bsp) and then a space delimited list of integers. These numbers represent the number of players per team that are appropriate for the map. These should be between 1-4. These can be voted on by team players by using the `vote randommap` command. It will use the player count of the team of the vote caller for the size. You can specify a player count when voting as well. Example: `vote randommap 4`
+`g_smartmapfile <string>` Set the file to use inside the game folder that holds the smart/random map config. Random map voting allows players to get a random known-good map of appropriate size. Each line of this file starts with a map name (minus the .bsp) and then a space delimited list of integers. These numbers represent the number of players per team that are appropriate for the map. These should be between 1-4. These can be voted on by team players by using the `vote randommap` command. It will use the player count of the team of the vote caller for the size. You can specify a player count when voting as well. Example: `vote randommap 4`
+
+`g_select_empty <0/1>` Allow switching to weapons with no ammo, *default: 0*
 
 ## Client CVARs
 
