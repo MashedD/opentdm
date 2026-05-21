@@ -702,7 +702,6 @@ extern cvar_t *password;
 extern cvar_t *spectator_password;
 extern cvar_t *g_select_empty;
 extern cvar_t *dedicated;
-extern cvar_t *aimfix;
 extern cvar_t *filterban;
 extern cvar_t *sv_gravity;
 extern cvar_t *sv_maxvelocity;
@@ -796,6 +795,8 @@ extern cvar_t *g_respawn_backpack;
 extern cvar_t *g_respawn_adren;
 extern cvar_t *g_respawn_ps;
 extern cvar_t *g_respawn_mega;
+
+extern cvar_t *g_aimfix;
 
 #define world   (&g_edicts[0])
 

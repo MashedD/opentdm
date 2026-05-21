@@ -4,7 +4,7 @@
 
 - Linux: fixed compilation for gcc.
 - Linux: added cross compilation for win32/win64.
-- Added `aimfix` as in  `q2pro` game library, `3zb2-zigflag` and others. Off by default.
+- Added `g_aimfix` as in `q2pro` game library, `3zb2-zigflag` and others. Off by default.
 - Added possibility of displaying hit markers, compatible with q2pro.
 - Added possibility of displaying damage indicators, compatible with q2pro.
 
@@ -104,7 +104,7 @@ OpenTDM is an open source team deathmatch and duel mod for Quake II. Origially w
 
 `obsmode` Show obsmode settings
 
-`stats/accuracy [playername]` Show your statistics or player of your choice 
+`stats/accuracy [playername]` Show your statistics or player of your choice
 
 `oldstats/oldaccuracy` Show stats from the previous match
 
@@ -236,8 +236,6 @@ Value | Description
 
 `g_admin_vote_decide <0/1>` Whether admin instantly decides votes
 
-`aimfix <0/1>` Enable aim fix (q2pro/3zb2-zigflag style). Changes how aiming prediction works, *default: 0*
-
 `g_team_a_name <string>` The name for the first team
 
 `g_team_b_name <string>` The name for the second team
@@ -266,7 +264,7 @@ Value | Description
 
 `g_tdm_allow_pick <0/1>`
 
-Value | Description 
+Value | Description
 ------ | -----
 0 | *default*, pick acts like invite command
 1 | allow direct picking of players to a team, they don't have to accept
@@ -345,8 +343,8 @@ Value | Description
 ------ | ------
 0 | tie, end the match anyway
 1 | overtime, add time to the clock (g_overtime)
-2 | sudden death, next frag wins 
- | *default: 1* 
+2 | sudden death, next frag wins
+ | *default: 1*
 
 `g_timeout_limit <integer>` Maximum number of timeouts allowed per client (0 = unlimited), *default: 2*
 
@@ -378,7 +376,7 @@ Value | Description
 `g_fast_weap_switch <0/1/2/3/4>` how fast weapons switch
 
 Value | Description
------- | ------ 
+------ | ------
 0 | Normal speed
 1 | Fast
 2 | Instant
@@ -403,11 +401,11 @@ Value | Description
 `g_bugs <0/1/2>` Controls bug fixes to original q2
 
 Value | Description
------- | ------ 
-0 | Fix all bugs 
+------ | ------
+0 | Fix all bugs
 1 | Enable gameplay bugs like quad-grenades
-2 | Enable serious bugs like shooting through walls/corpses 
- | *default: 0 
+2 | Enable serious bugs like shooting through walls/corpses
+ | *default: 0
 
 `g_allow_vote_config <0/1>` Enable voting for config files in the /configs folder, *default: 1*
 
@@ -449,13 +447,13 @@ Value | Description
 `g_vote_mask <integer>` Enable particular vote options, add them up
 
 Value | Description
------- | ------ 
-1 | timelimit 
-2 | map 
-4 | kick 
-8 | weapons 
-16 | powerups 
-32 | gamemode 
+------ | ------
+1 | timelimit
+2 | map
+4 | kick
+8 | weapons
+16 | powerups
+32 | gamemode
 64 | *unused*
 128 | teleport mode
 256 | tiemode
@@ -496,17 +494,17 @@ Value | Description
 ------ | ------
 0 | Don't record matches, *default*
 1 | Record every match
-2 | Record every match and compress them on the fly with zlib 
+2 | Record every match and compress them on the fly with zlib
 
 `g_ready_attention <0/1>` Stop warmup players from shooting until match starts, *default: 0*
 
-`g_weapon_hud <integer>` Allow the weapon hud, *default: 1 (enabled)* Players can enable/disable the hud in their client using the `hud` command or setting the proper userflag: `set uf "256" u` 
+`g_weapon_hud <integer>` Allow the weapon hud, *default: 1 (enabled)* Players can enable/disable the hud in their client using the `hud` command or setting the proper userflag: `set uf "256" u`
 
 Value | Description
 ------ | ------
 0 | `Disabled` Hud not allowed at all
 1 | `Enabled` Hud allowed, but off until client turns it on
-2 | `Default` Hud on by default for all players, they can still turn it off if they like 
+2 | `Default` Hud on by default for all players, they can still turn it off if they like
 3 | `Forced` Hud is forced on for all players, they can't turn it off
 
 `g_weapon_timer <0/1>` Enable the weapontimer command, *default: 1*
@@ -535,6 +533,8 @@ Value | Description
 
 `g_select_empty <0/1>` Allow switching to weapons with no ammo, *default: 0*
 
+`g_aimfix <0/1>` Changes how aiming prediction works, *default: 0*
+
 ## Client CVARs
 
 `stats_id <string> u` Userinfo variable. Obtain your ID from https://opentdm.org for playerconfigs and stats. Note the `u` at the end
@@ -545,19 +545,19 @@ Value | Description
 ------ | ------
 1 | `Auto Screenshot` Force screenshot of intermission screen
 2 | `Auto Record` Force demo recording of every match
-4 | `Local FOV` Keep your FOV when chasing 
+4 | `Local FOV` Keep your FOV when chasing
 8 | `Mute Players` Ignore all player chat
 16 | `Mute Observers` Ignore all Spec chat
-256 | `Weapon Hud` Enable the weapon hud 
+256 | `Weapon Hud` Enable the weapon hud
 
-`amask <integer or string> u` Userinfo Variable. Which armor you want to time upon pickup. Either add up the integer value or combine the string value in any combination including +/-all. Example: `-all +ra +ya` for only timing body and combat armors. 
+`amask <integer or string> u` Userinfo Variable. Which armor you want to time upon pickup. Either add up the integer value or combine the string value in any combination including +/-all. Example: `-all +ra +ya` for only timing body and combat armors.
 
 Int Value | String Value | Description
 ------ | ------ | ------
 1 | `ga` or `jacket` | Jacket Armor
 2 | `ya` or `combat` | Combat Armor
 4 | `ra` or `body` | Body Armor
-8 | `sh` or `shard` | Armor Shard 
+8 | `sh` or `shard` | Armor Shard
 
 `wmask <integer or string> u` Userinfo Variable. Which weapons you want to time upon pickup. Either add up the integer value or combine the string values in any combination including +/-all. Example: `-all +cg +rl` for only timing chaingun and rocketlauncher.
 

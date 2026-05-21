@@ -109,7 +109,6 @@ void InitGame(void) {
 
     // noset vars
     dedicated = gi.cvar("dedicated", "0", CVAR_NOSET);
-    aimfix = gi.cvar("aimfix", "0", 0);
 
     // latched vars
     sv_cheats = gi.cvar("cheats", "0", CVAR_SERVERINFO | CVAR_LATCH);
@@ -297,6 +296,9 @@ void InitGame(void) {
     g_respawn_adren = gi.cvar("g_respawn_adren", "60", 0);
     g_respawn_ps = gi.cvar("g_respawn_ps", "60", 0);
     g_respawn_mega = gi.cvar("g_respawn_mega", "20", 0);
+
+    // aimfix
+    g_aimfix = gi.cvar("g_aimfix", "0", 0);
 
     //
     g_tdm_allow_pick = gi.cvar("g_tdm_allow_pick", "0", 0);
