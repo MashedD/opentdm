@@ -42,7 +42,6 @@ cvar_t *maxclients;
 cvar_t *maxentities;
 cvar_t *g_select_empty;
 cvar_t *dedicated;
-cvar_t *aimfix;
 
 cvar_t *filterban;
 
@@ -164,6 +163,8 @@ cvar_t *g_respawn_backpack;
 cvar_t *g_respawn_adren;
 cvar_t *g_respawn_ps;
 cvar_t *g_respawn_mega;
+
+cvar_t *g_aimfix;
 
 cvar_t *sv_mvd_enable;
 
