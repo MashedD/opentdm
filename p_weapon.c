@@ -42,7 +42,7 @@ static void P_ProjectSource(edict_t *ent, vec3_t point, vec3_t distance,
     }
     G_ProjectSource(point, _distance, forward, right, result);
 
-    if ((int) aimfix->value)
+    if ((int) g_aimfix->value)
     {
         vec3_t start, end;
         VectorCopy(point, start);
