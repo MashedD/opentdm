@@ -5,8 +5,6 @@
 - Linux: fixed compilation for gcc.
 - Linux: added cross compilation for win32/win64.
 - Added `g_aimfix` as in `q2pro` game library, `3zb2-zigflag` and others. Off by default.
-- Added possibility of displaying hit markers, compatible with q2pro.
-- Added possibility of displaying damage indicators, compatible with q2pro.
 
 # Building
 
