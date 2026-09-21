@@ -17,6 +17,10 @@ ifndef VER
 endif
 
 CC ?= gcc
+LD ?= $(CC)
+ifeq ($(origin LD),default)
+    LD := $(CC)
+endif
 WINDRES ?= windres
 STRIP ?= strip
 RM ?= rm -f
@@ -26,35 +30,8 @@ LDFLAGS ?= -shared
 LIBS ?=
 
 ifdef CONFIG_WINDOWS
-    CC = i686-w64-mingw32-gcc
-    WINDRES = i686-w64-mingw32-windres
-    CFLAGS += -Duint8_t="unsigned char" \
-              -Duint16_t="unsigned short int" \
-              -Duint32_t="int" \
-              -Duint64_t="unsigned long long" \
-              -Din_addr_t="uint32_t"
     LDFLAGS += -mconsole
     LDFLAGS += -Wl,--nxcompat,--dynamicbase
-    CURL_CFLAGS = -static -static-libgcc -DCURL_STATIC
-    CFLAGS += -DHAVE_CURL $(CURL_CFLAGS) -DCURL_STATICLIB \
-              -Ideps/win32/include
-    LIBS += deps/win32/lib/libcurl.a \
-            deps/win32/lib/libcrypto.a \
-            deps/win32/lib/libcrypt32.a \
-            deps/win32/lib/libz.a \
-            deps/win32/lib/libssl.a \
-            deps/win32/lib/libssh2.a \
-            deps/win32/lib/libidn.a \
-            deps/win32/lib/libiconv.a \
-            deps/win32/lib/libintl.a \
-            deps/win32/lib/libwldap32.a \
-            deps/win32/lib/libgdi32.a \
-            deps/win32/lib/libcrypto.a \
-            deps/win32/lib/libcrypt32.a \
-            deps/win32/lib/libssp.a \
-            deps/win32/lib/libidn2.a \
-            deps/win32/lib/libpthread.a \
-            -static -static-libgcc
 else
     CFLAGS += -fPIC -fvisibility=hidden
     CURL_CFLAGS ?= -Ideps/$(CPU)/curl/include
@@ -78,8 +55,10 @@ g_utils.o g_weapon.o mt19937.o p_client.o p_hud.o p_menu.o p_view.o p_weapon.o \
 g_tdm_votemenu.o q_shared.o
 
 ifdef CONFIG_32BIT
-	CFLAGS += -m32
-	LDFLAGS += -m32
+	ifndef CONFIG_WINDOWS
+		CFLAGS += -m32
+		LDFLAGS += -m32
+	endif
 	CPU = x86
 else
 	CPU = x86_64
@@ -123,7 +102,7 @@ endif
 
 $(TARGET): $(OBJS)
 	$(E) [LD] $@
-	$(Q)$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
+	$(Q)$(LD) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 clean:
 	$(E) [CLEAN]
