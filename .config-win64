@@ -6,7 +6,7 @@ CC = x86_64-w64-mingw32-gcc
 LD = x86_64-w64-mingw32-gcc
 WINDRES = x86_64-w64-mingw32-windres
 
-CFLAGS = -std=gnu99 -static -static-libgcc -DCURL_STATICLIB -DHAVE_CURL -DWIN32 -D__USE_W32_SOCKETS
+CFLAGS = -std=gnu99 -static -static-libgcc -DCURL_STATICLIB -DHAVE_CURL -DWIN32 -D__USE_W32_SOCKETS -I/usr/x86_64-w64-mingw32/include
 LDFLAGS = -shared -static -static-libgcc
 
 LIBS = -L/usr/x86_64-w64-mingw32/lib
@@ -34,4 +34,3 @@ LIBS += /usr/x86_64-w64-mingw32/lib/libcrypt32.a
 LIBS += /usr/x86_64-w64-mingw32/lib/libwldap32.a
 LIBS += /usr/x86_64-w64-mingw32/lib/libiconv.a
 LIBS += /usr/x86_64-w64-mingw32/lib/libbcrypt.a
-

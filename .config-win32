@@ -7,7 +7,7 @@ CC = i686-w64-mingw32-gcc
 LD = i686-w64-mingw32-gcc
 WINDRES = i686-w64-mingw32-windres
 
-CFLAGS = -std=gnu99 -static -static-libgcc -DCURL_STATICLIB -DHAVE_CURL -DWIN32 -D__USE_W32_SOCKETS # -D_WIN32_WINNT=0x0501
+CFLAGS = -std=gnu99 -static -static-libgcc -DCURL_STATICLIB -DHAVE_CURL -DWIN32 -D__USE_W32_SOCKETS -I/usr/i686-w64-mingw32/include # -D_WIN32_WINNT=0x0501
 LDFLAGS = -shared -static -static-libgcc
 
 LIBS = -L/usr/i686-w64-mingw32/lib
@@ -35,4 +35,3 @@ LIBS += /usr/i686-w64-mingw32/lib/libcrypt32.a
 LIBS += /usr/i686-w64-mingw32/lib/libwldap32.a
 LIBS += /usr/i686-w64-mingw32/lib/libiconv.a
 LIBS += /usr/i686-w64-mingw32/lib/libbcrypt.a
-
