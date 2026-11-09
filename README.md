@@ -1,62 +1,74 @@
 # OpenTDM
 
-# Changes in this fork
-
-- Linux: fixed compilation for gcc.
-- Linux: added cross compilation for win32/win64.
-- Added `g_aimfix` as in `q2pro` game library, `3zb2-zigflag` and others. Off by default.
-
-# Building
-
-## Prerequisites
-
-Dependencies might be missing and some are probably excessive.
-I didn't optimize this as it's time/cost not effective for me.
-Best might be to use Docker for the job.
-
-```bash
-# Tested on CachyOS
-sudo pacman -S cmake gcc
-
-# For cross compilation
-sudo pacman -S \
-    mingw-w64-tools \
-    mingw-w64-binutils \
-    mingw-w64-crt \
-    mingw-w64-gcc \
-    mingw-w64-headers \
-    mingw-w64-winpthreads
-paru -S \
-    mingw-w64-zlib \
-    mingw-w64-zlib-ng \
-    mingw-w64-ffmpeg \
-    mingw-w64-pkg-config \
-    mingw-w64-libpng \
-    mingw-w64-libjpeg-turbo \
-    mingw-w64-openal \
-    mingw-w64-zstd
-```
-
-## Compilation
-
-Review scripts before executing them.
-
-```bash
-./build-lin64.sh
-./clean.sh
-./build-win32.sh
-./clean.sh
-./build-win64.sh
-```
-
-# TODO
-
-- fix compilation warnings
-- get rid of `deps` folder
-
-# Old part of README.md below
-
 OpenTDM is an open source team deathmatch and duel mod for Quake II. Origially written by r1ch
+
+This fork follows the `dev` branch of [packetflinger/opentdm](https://github.com/packetflinger/opentdm)
+and adds the changes below. Prebuilt game libraries for Linux and Windows are on the
+[releases page](https://github.com/MashedD/opentdm/releases).
+
+## Changes in this fork
+
+- `g_aimfix`: fire toward what the crosshair points at, as in the `q2pro` game library,
+  `3zb2-zigflag` and others. Off by default.
+- Builds with current compilers on Linux, and cross-compiles the Windows DLLs with MinGW-w64.
+- No prebuilt libraries in the repository: Linux links the system libcurl, and the Windows
+  DLLs link a static libcurl built from source that uses Windows' own TLS (Schannel).
+- Match stats ids use a built-in MD5, so OpenSSL is no longer needed.
+- GitHub Actions builds every push and publishes releases for tags.
+
+## Downloads
+
+Release | File | Install as
+------- | ---- | ----------
+Linux x86_64 | `gamex86_64.so` | `opentdm/gamex86_64.so`
+Linux ARM64 | `gameaarch64.so` | `opentdm/gameaarch64.so`
+Windows 64-bit | `gamex86_64.dll` | `opentdm/gamex86_64.dll`
+Windows 32-bit | `gamex86.dll` | `opentdm/gamex86.dll`
+
+The Linux libraries need glibc 2.17 or newer and libcurl (`libcurl4` on Debian/Ubuntu,
+`curl` on Arch, `libcurl` on Fedora). The Windows DLLs need no extra files.
+`SHA256SUMS` lists the checksums of all files in a release.
+
+## Building
+
+On Debian/Ubuntu:
+
+```bash
+sudo apt install make gcc pkg-config libcurl4-openssl-dev   # Linux .so
+sudo apt install gcc-mingw-w64 curl                          # Windows .dll
+```
+
+On Arch/CachyOS:
+
+```bash
+sudo pacman -S make gcc pkgconf curl   # Linux .so
+sudo pacman -S mingw-w64-gcc           # Windows .dll
+```
+
+Then:
+
+```bash
+./build.sh            # gamex86_64.so (or gameaarch64.so on ARM)
+./build.sh win64      # gamex86_64.dll
+./build.sh win32      # gamex86.dll
+./build.sh all        # all of the above
+./build.sh clean      # remove build output
+```
+
+The libraries are written to the repository root. The first Windows build downloads and
+builds libcurl into `.deps/`, which takes a minute or two; later builds reuse it.
+
+`make` can also be called directly. `make USE_CURL=0` builds without libcurl (no remote
+configs, player config downloads or stats sending), and `make V=1` shows the compiler commands.
+
+## Releases
+
+1. Add the changes under a new `## [x.y.z] - YYYY-MM-DD` heading in `CHANGELOG.md` and
+   commit to `master`.
+2. Tag and push: `git tag vx.y.z && git push origin vx.y.z`.
+
+The `release` workflow builds all four libraries and publishes a GitHub release with the notes
+from `CHANGELOG.md`. A tag such as `v1.0.0-rc.1` makes a pre-release.
 
 ## Client Commands
 
@@ -537,7 +549,7 @@ Value | Description
 
 `g_select_empty <0/1>` Allow switching to weapons with no ammo, *default: 0*
 
-`g_aimfix <0/1>` Changes how aiming prediction works, *default: 0*
+`g_aimfix <0/1>` Aim shots at the point under the crosshair. Shots normally leave the weapon's offset from the eye and fly parallel to the view, so they can miss what the crosshair is on, mostly up close. With this on, they are aimed from the weapon to where the crosshair points, *default: 0*
 
 ## Client CVARs
 
