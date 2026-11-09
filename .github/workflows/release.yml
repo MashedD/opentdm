@@ -1,0 +1,117 @@
+name: release
+
+# Pushing a vMAJOR.MINOR.PATCH tag builds the game libraries and publishes a
+# release with notes from CHANGELOG.md. A tag with a suffix, such as
+# v1.0.0-rc.1, makes a pre-release. Running this workflow by hand builds the
+# libraries and keeps them as workflow artifacts, without publishing anything,
+# as does a pull request that changes the build or packaging.
+
+on:
+  push:
+    tags: ['v[0-9]*']
+  pull_request:
+    branches: [master]
+    paths:
+      - .ci/**
+      - .github/workflows/release.yml
+      - Makefile
+      - build.sh
+      - .config-win*
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  linux:
+    # Binaries built on the oldest supported Ubuntu need only glibc 2.35 and
+    # libcurl.so.4, which every current distribution has.
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      matrix:
+        os: [ubuntu-22.04, ubuntu-22.04-arm]
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Install dependencies
+        timeout-minutes: 10
+        run: .ci/apt-install.sh make pkg-config gcc libcurl4-openssl-dev
+      - name: Build
+        run: |
+          ./build.sh linux
+          make strip
+        env:
+          VER: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
+      - uses: actions/upload-artifact@v7
+        with:
+          name: linux-${{ runner.arch }}
+          path: game*.so
+          if-no-files-found: error
+
+  windows:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      matrix:
+        include:
+          - arch: win32
+            host: i686-w64-mingw32
+          - arch: win64
+            host: x86_64-w64-mingw32
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/cache@v6
+        with:
+          path: .deps
+          key: curl-${{ matrix.arch }}-${{ hashFiles('.ci/build-curl.sh') }}
+      - name: Install dependencies
+        timeout-minutes: 10
+        run: .ci/apt-install.sh make pkg-config gcc-mingw-w64 binutils-mingw-w64
+      - name: Build
+        run: |
+          ./build.sh ${{ matrix.arch }}
+          ${{ matrix.host }}-strip game*.dll
+        env:
+          VER: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
+      - uses: actions/upload-artifact@v7
+        with:
+          name: ${{ matrix.arch }}
+          path: game*.dll
+          if-no-files-found: error
+
+  publish:
+    if: github.event_name == 'push'
+    needs: [linux, windows]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Check that the tag is on master
+        run: git merge-base --is-ancestor "$GITHUB_SHA" origin/master
+      - name: Write release notes
+        run: python3 .ci/release-notes.py "$GITHUB_REF_NAME" > notes.md
+      - uses: actions/download-artifact@v8
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Write checksums
+        run: cd dist && sha256sum -- * > SHA256SUMS
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          case "$GITHUB_REF_NAME" in
+          *-*) prerelease=--prerelease ;;
+          *) prerelease= ;;
+          esac
+          # shellcheck disable=SC2086
+          gh release create "$GITHUB_REF_NAME" dist/* --verify-tag \
+            --title "$GITHUB_REF_NAME" --notes-file notes.md $prerelease
