@@ -6,6 +6,8 @@ All notable changes to this fork are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-11-09
+
 ### Added
 
 - Based on the `dev` branch of
