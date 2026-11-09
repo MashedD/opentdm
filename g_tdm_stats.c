@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "g_local.h"
 #include "g_tdm.h"
 
-#include <openssl/evp.h>
+#include "md5.h"
 
 static const int tdmg_weapons[] =
 {
@@ -1420,8 +1420,8 @@ void TDM_ItemGrabbed(edict_t *ent, edict_t *player) {
 void TDM_GetStatsId(edict_t *ent, char *out, size_t size) {
     const char *stats_id;
     const char *key;
-    unsigned char md[EVP_MAX_MD_SIZE];
-    unsigned int mdlen, i;
+    unsigned char md[MD5_DIGEST_LENGTH];
+    unsigned int i;
     size_t len;
 
     out[0] = '\0';
@@ -1440,15 +1440,10 @@ void TDM_GetStatsId(edict_t *ent, char *out, size_t size) {
         key = ent->client->pers.netname;
     }
 
-    if (!EVP_Digest(key, strlen(key), md, &mdlen, EVP_md5(), NULL)) {
-        gi.dprintf("TDM_GetStatsId: MD5 failed, using the plain value for %s\n",
-                ent->client->pers.netname);
-        Q_strncpy(out, key, size - 1);
-        return;
-    }
+    MD5_Buffer(key, strlen(key), md);
 
     len = 0;
-    for (i = 0; i < mdlen && len + 3 <= size; i++) {
+    for (i = 0; i < MD5_DIGEST_LENGTH && len + 3 <= size; i++) {
         len += sprintf(out + len, "%02x", md[i]);
     }
 }

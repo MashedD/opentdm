@@ -4,3 +4,6 @@
 /game*.dll
 /tags
 /TAGS
+/build/
+/.deps/
+/dist/
