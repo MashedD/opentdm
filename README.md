@@ -10,6 +10,9 @@ and adds the changes below. Prebuilt game libraries for Linux and Windows are on
 
 - `g_aimfix`: fire toward what the crosshair points at, as in the `q2pro` game library,
   `3zb2-zigflag` and others. Off by default.
+- Re-release hit markers for clients that announce `cl_hit_markers` in their userinfo, such as
+  the MashedD Q2PRO fork; other clients are never sent them, and `g_hit_sound` can play a sound
+  to them instead.
 - Builds with current compilers on Linux, and cross-compiles the Windows DLLs with MinGW-w64.
 - No prebuilt libraries in the repository: Linux links the system libcurl, and the Windows
   DLLs link a static libcurl built from source that uses Windows' own TLS (Schannel).
@@ -550,6 +553,8 @@ Value | Description
 `g_select_empty <0/1>` Allow switching to weapons with no ammo, *default: 0*
 
 `g_aimfix <0/1>` Aim shots at the point under the crosshair. Shots normally leave the weapon's offset from the eye and fly parallel to the view, so they can miss what the crosshair is on, mostly up close. With this on, they are aimed from the weapon to where the crosshair points, *default: 0*
+
+`g_hit_sound <string>` Sound played to a player who hits someone, for clients without re-release hit markers, such as older Q2PRO and R1Q2, for example `misc/talk1.wav`. Clients whose userinfo has `cl_hit_markers` above 0 get the hit marker instead. Empty turns it off, *default: ""*
 
 ## Client CVARs
 

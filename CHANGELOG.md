@@ -6,6 +6,16 @@ All notable changes to this fork are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Re-release hit markers: the damage a player deals is sent to them as
+  `TE_DAMAGE_DEALT` once per server frame, but only when their userinfo has
+  `cl_hit_markers` above 0, as the MashedD Q2PRO fork sends it. Other
+  clients, such as older Q2PRO and R1Q2, drop the connection on that temp
+  entity, so they never get it.
+- `g_hit_sound` plays a sound to the clients without hit markers when they
+  hit someone. Empty by default, so they get nothing.
+
 ## [1.0.0] - 2026-11-09
 
 ### Added
