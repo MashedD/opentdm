@@ -6,6 +6,8 @@ All notable changes to this fork are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-11-21
+
 ### Added
 
 - Re-release hit markers: the damage a player deals is sent to them as
