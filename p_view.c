@@ -933,12 +933,43 @@ void G_SetClientFrame(edict_t *ent) {
 /**
  * Called for each player at the end of the server frame and right after spawning
  */
+/*
+ * Tells the client about the damage it dealt this frame. Clients that
+ * announce cl_hit_markers in their userinfo get the re-release hit marker,
+ * TE_DAMAGE_DEALT. Others, such as older Q2PRO and R1Q2, would drop the
+ * connection on that unknown temp entity, so they get g_hit_sound instead,
+ * a local sound every client plays, when the server sets one.
+ */
+static void G_SendHitMarker(edict_t *ent) {
+    gclient_t *client = ent->client;
+    int damage = client->hit_damage;
+
+    if (damage <= 0)
+        return;
+    client->hit_damage = 0;
+
+    if (atoi(Info_ValueForKey(client->pers.userinfo, "cl_hit_markers")) > 0) {
+        gi.WriteByte(SVC_TEMP_ENTITY);
+        gi.WriteByte(TE_DAMAGE_DEALT);
+        gi.WriteShort(damage > 32767 ? 32767 : damage);
+        gi.unicast(ent, false);
+    } else if (g_hit_sound->string[0]) {
+        gi.WriteByte(SVC_SOUND);
+        gi.WriteByte(SND_ATTENUATION);
+        gi.WriteByte(gi.soundindex(g_hit_sound->string));
+        gi.WriteByte(ATTN_NONE);
+        gi.unicast(ent, false);
+    }
+}
+
 void ClientEndServerFrame(edict_t *ent) {
     float bobtime;
     int i;
 
     current_player = ent;
     current_client = ent->client;
+
+    G_SendHitMarker(ent);
 
     // If the origin or velocity have changed since ClientThink(),
     // update the pmove values.  This will happen when the client

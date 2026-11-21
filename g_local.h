@@ -701,6 +701,7 @@ extern cvar_t *timelimit;
 extern cvar_t *password;
 extern cvar_t *spectator_password;
 extern cvar_t *g_select_empty;
+extern cvar_t *g_hit_sound;
 extern cvar_t *dedicated;
 extern cvar_t *filterban;
 extern cvar_t *sv_gravity;
@@ -1529,6 +1530,7 @@ struct gclient_s {
     int            damage_parmor;   // damage absorbed by power armor
     int            damage_blood;    // damage taken out of health
     int            damage_knockback; // impact damage
+    int            hit_damage;      // dealt to others this frame, for hit markers
     vec3_t         damage_from;     // origin for vector calculation
 
     float          killer_yaw;      // when dead, look at killer

@@ -128,6 +128,7 @@ void InitGame(void) {
 
     // whether you can switch to an empty gun or not
     g_select_empty = gi.cvar("g_select_empty", "0", CVAR_ARCHIVE);
+    g_hit_sound = gi.cvar("g_hit_sound", "", 0);
 
     run_pitch = gi.cvar("run_pitch", "0.002", 0);
     run_roll = gi.cvar("run_roll", "0.005", 0);
