@@ -82,6 +82,7 @@ const char *soundnames[17] = {
 };
 
 char **tdm_maplist;
+unsigned char *tdm_maplist_flags;
 
 //a note regarding matchinfo and teamplayers.
 //matchinfo is a structure containing information about a single match - from "Fight!" to a team winning.
@@ -2192,40 +2193,137 @@ qboolean TDM_CheckMapExists(const char *mapname) {
     return false;
 }
 
-/**
- * Prints the maplist to the client.
- */
-void TDM_WriteMaplist(edict_t *ent) {
-    int i, j;
-    static char maplist_string[1024];
-    static qboolean short_maplist = false;
+// Everything one command prints goes out in the same server frame, so the
+// total must stay well below the client's reliable message buffer, or the
+// client is dropped with an overflow (large maplists have thousands of maps).
+#define MAPLIST_BUDGET  2800
+#define MAPLIST_PAGE    150
 
-    // maplist file is configured but missing or empty
+// case-insensitive substring test
+static qboolean MaplistMatch(const char *name, const char *text) {
+    size_t n = strlen(text);
+
+    for (; *name; name++) {
+        if (!Q_strncasecmp(name, text, n)) {
+            return true;
+        }
+    }
+    return !n;
+}
+
+typedef struct {
+    char    buffer[1024];
+    size_t  total;
+    size_t  sent;
+    int     col;
+} maplist_out_t;
+
+static void MaplistFlush(edict_t *ent, maplist_out_t *out) {
+    if (out->total) {
+        out->buffer[out->total] = 0;
+        gi.cprintf(ent, PRINT_HIGH, "%s", out->buffer);
+        out->sent += out->total;
+        out->total = 0;
+    }
+}
+
+static qboolean MaplistAdd(edict_t *ent, maplist_out_t *out, const char *name) {
+    size_t len = strlen(name) + 17;
+
+    if (out->sent + out->total + len >= MAPLIST_BUDGET) {
+        return false;
+    }
+    if (out->total + len >= sizeof(out->buffer) - 1) {
+        MaplistFlush(ent, out);
+    }
+    out->total += snprintf(out->buffer + out->total, sizeof(out->buffer) - out->total,
+            out->col == 4 ? "%s\n" : "%-15s ", name);
+    out->col = (out->col + 1) % 5;
+    return true;
+}
+
+static void MaplistEnd(edict_t *ent, maplist_out_t *out) {
+    if (out->col && out->total < sizeof(out->buffer) - 1) {
+        out->buffer[out->total++] = '\n';
+    }
+    out->col = 0;
+    MaplistFlush(ent, out);
+}
+
+/**
+ * Prints the maplist to the client, staying below the message buffer.
+ *   arg ""             listed maps (vote-only maps are only counted)
+ *   arg "all", page    every map, MAPLIST_PAGE per page
+ *   arg <text>         maps whose name contains <text>
+ */
+void TDM_WriteMaplistArgs(edict_t *ent, const char *arg, const char *page_arg) {
+    maplist_out_t out;
+    qboolean all = !Q_stricmp(arg, "all");
+    int page = all && page_arg && page_arg[0] ? atoi(page_arg) : 1;
+    int i, total = 0, extra = 0, matched = 0, shown = 0, skipped;
+
     if (!tdm_maplist) {
         gi.cprintf(ent, PRINT_HIGH, "No maps are listed on this server.\n");
         return;
     }
 
-    // maplist fits the string, so no need to create new maplist again
-    if (short_maplist) {
-        gi.cprintf(ent, PRINT_HIGH, "%s", maplist_string);
-    } else {
-        short_maplist = true;
-
-        maplist_string[0] = 0;
-        j = sprintf(maplist_string, "Allowed maplist:\n----------------\n");
-
-        for (i = 0; tdm_maplist[i] != NULL; i++) {
-            if (strlen(tdm_maplist[i]) + 4 + j >= sizeof(maplist_string) - 1) {
-                j = 0;
-                short_maplist = false;
-                gi.cprintf(ent, PRINT_HIGH, "%s", maplist_string);
-                maplist_string[j] = 0;
-            }
-            j += sprintf(maplist_string + j, "  %s\n", tdm_maplist[i]);
-        }
-        gi.cprintf(ent, PRINT_HIGH, "%s", maplist_string);
+    memset(&out, 0, sizeof(out));
+    if (page < 1) {
+        page = 1;
     }
+    skipped = (page - 1) * MAPLIST_PAGE;
+
+    for (i = 0; tdm_maplist[i] != NULL; i++) {
+        total++;
+        if (all) {
+            if (matched++ < skipped || shown >= MAPLIST_PAGE) {
+                continue;
+            }
+        } else if (arg[0]) {
+            if (!MaplistMatch(tdm_maplist[i], arg)) {
+                continue;
+            }
+            matched++;
+        } else if (tdm_maplist_flags && (tdm_maplist_flags[i] & MAPLIST_VOTEONLY)) {
+            extra++;
+            continue;
+        } else {
+            matched++;
+        }
+        if (MaplistAdd(ent, &out, tdm_maplist[i])) {
+            shown++;
+        }
+    }
+    MaplistEnd(ent, &out);
+
+    if (all) {
+        int pages = (total + MAPLIST_PAGE - 1) / MAPLIST_PAGE;
+        gi.cprintf(ent, PRINT_HIGH, "Page %d/%d of %d maps.%s\n", page, pages, total,
+                page < pages ? va(" Next: 'maplist all %d'.", page + 1) : "");
+    } else if (arg[0]) {
+        if (!matched) {
+            gi.cprintf(ent, PRINT_HIGH, "No map matches '%s'.\n", arg);
+        } else if (shown < matched) {
+            gi.cprintf(ent, PRINT_HIGH, "%d of %d maps matching '%s'; type more of the name.\n",
+                    shown, matched, arg);
+        } else {
+            gi.cprintf(ent, PRINT_HIGH, "%d maps match '%s'. Use 'vote map <name>'.\n", matched, arg);
+        }
+    } else {
+        gi.cprintf(ent, PRINT_HIGH, "%d maps listed%s. Use 'vote map <name>'.\n", matched,
+                shown < matched ? va(" (%d shown)", shown) : "");
+        if (extra) {
+            gi.cprintf(ent, PRINT_HIGH, "%d more maps can be voted: 'maplist <part of name>' to search, "
+                    "'maplist all' to browse.\n", extra);
+        }
+    }
+}
+
+/**
+ * Prints the maplist without filters (used by 'vote map' and 'changemap').
+ */
+void TDM_WriteMaplist(edict_t *ent) {
+    TDM_WriteMaplistArgs(ent, "", NULL);
 }
 
 /**
@@ -2244,6 +2342,10 @@ void TDM_CreateMaplist(void) {
     if (tdm_maplist) {
         gi.TagFree(tdm_maplist);
         tdm_maplist = NULL;
+    }
+    if (tdm_maplist_flags) {
+        gi.TagFree(tdm_maplist_flags);
+        tdm_maplist_flags = NULL;
     }
 
     // maplist is not in use
@@ -2269,13 +2371,32 @@ void TDM_CreateMaplist(void) {
     }
 
     tdm_maplist = gi.TagMalloc(sizeof(char*) * entries_num, TAG_GAME);
+    tdm_maplist_flags = gi.TagMalloc(entries_num, TAG_GAME);
 
     for (;;) {
+        int flags = 0;
+        char *rest;
+
         entry = fgets(buffer, sizeof(buffer), maplst);
 
         if (entry == NULL) {
             break;
         }
+
+        if (entry[0] == '#' || (entry[0] == '/' && entry[1] == '/')) {
+            continue;
+        }
+
+        // optional second column: flags (1 = vote only, not shown by default
+        // and skipped by the vote menu)
+        rest = entry;
+        while (*rest == ' ' || *rest == '\t') {
+            rest++;
+        }
+        while (*rest && *rest != ' ' && *rest != '\t' && *rest != '\n' && *rest != '\r') {
+            rest++;
+        }
+        flags = atoi(rest);
 
         len = strlen(buffer);
         start = true;
@@ -2300,17 +2421,23 @@ void TDM_CreateMaplist(void) {
 
         tdm_maplist[j] = gi.TagMalloc(strlen(entry) + 1, TAG_GAME);
         strcpy(tdm_maplist[j], entry);
+        tdm_maplist_flags[j] = (unsigned char)flags;
         j++;
 
         // realloc
         if (j % entries_num == 0) {
             char **tmp;
+            unsigned char *tmpflags;
 
             tmp = gi.TagMalloc(sizeof(char*) * (j + entries_num), TAG_GAME);
             memcpy(tmp, tdm_maplist, j * sizeof(char*));
-
             gi.TagFree(tdm_maplist);
             tdm_maplist = tmp;
+
+            tmpflags = gi.TagMalloc(j + entries_num, TAG_GAME);
+            memcpy(tmpflags, tdm_maplist_flags, j);
+            gi.TagFree(tdm_maplist_flags);
+            tdm_maplist_flags = tmpflags;
         }
     }
 
@@ -2325,6 +2452,8 @@ void TDM_CreateMaplist(void) {
     } else {
         gi.TagFree(tdm_maplist);
         tdm_maplist = NULL;
+        gi.TagFree(tdm_maplist_flags);
+        tdm_maplist_flags = NULL;
     }
 }
 

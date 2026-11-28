@@ -6,6 +6,21 @@ All notable changes to this fork are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.1.1] - 2026-11-28
+
+### Fixed
+
+- `maplist` no longer drops the client with an overflow on servers with a
+  large maplist: every reply stays below about 2.8 KB. `maplist <text>`
+  searches the maplist and `maplist all [page]` browses it 150 maps at a time.
+
+### Added
+
+- An optional second column in the `g_maplistfile` file: `1` marks a map as
+  vote-only. Such maps can still be voted (`vote map <name>`), but plain
+  `maplist` only counts them and the vote menu skips them. Lines starting with
+  `#` or `//` are comments.
+
 ## [1.1.0] - 2026-11-21
 
 ### Added

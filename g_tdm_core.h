@@ -10,6 +10,8 @@ typedef struct tdm_config_s {
 } tdm_config_t;
 
 extern char **tdm_maplist;
+extern unsigned char *tdm_maplist_flags;  // per entry, MAPLIST_VOTEONLY
+#define MAPLIST_VOTEONLY    1
 extern tdm_download_t tdm_vote_download;
 
 void CountPlayers(void);
@@ -73,6 +75,7 @@ void TDM_UpdateSpectatorsOnEvent(int spec_mode, edict_t *target,
         edict_t *killer);
 void TDM_UpdateTeamNames(void);
 void TDM_WriteMaplist(edict_t *ent);
+void TDM_WriteMaplistArgs(edict_t *ent, const char *arg, const char *page_arg);
 void UpdateMatchStatus(void);
 void UpdatePlayerTeamMenu(edict_t *ent);
 void UpdateTeamMenu(void);

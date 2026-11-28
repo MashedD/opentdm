@@ -258,21 +258,29 @@ void VoteMenuMap(edict_t *ent) {
     for (map_count = 0; tdm_maplist[map_count] != NULL; map_count++)
         ;
 
-    if (ent->client->pers.votemenu_values.decrease) {
-        map_index--;
-    } else {
-        map_index++;
-    }
+    // step over vote-only maps: the menu cycles through the listed ones
+    for (;;) {
+        if (ent->client->pers.votemenu_values.decrease) {
+            map_index--;
+        } else {
+            map_index++;
+        }
 
-    // don't show "---" twice if user decreased value at the start
-    if (map_index == -2) {
-        map_index = map_count - 1;
-    // jump from the start of the list to the end
-    } else if (map_index < 0) {
-        map_index = map_count;
-    // jump from the end of the list to the start
-    } else if (map_index > map_count) {
-        map_index = 0;
+        // don't show "---" twice if user decreased value at the start
+        if (map_index == -2) {
+            map_index = map_count - 1;
+        // jump from the start of the list to the end
+        } else if (map_index < 0) {
+            map_index = map_count;
+        // jump from the end of the list to the start
+        } else if (map_index > map_count) {
+            map_index = 0;
+        }
+
+        if (map_index == map_count || !tdm_maplist_flags
+                || !(tdm_maplist_flags[map_index] & MAPLIST_VOTEONLY)) {
+            break;
+        }
     }
 
     // we reached the end of maplist.. show '---'
