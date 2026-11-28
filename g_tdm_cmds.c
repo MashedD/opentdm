@@ -2572,7 +2572,7 @@ void TDM_Maplist_f(edict_t *ent) {
         return;
     }
 
-    TDM_WriteMaplist(ent);
+    TDM_WriteMaplistArgs(ent, gi.argc() > 1 ? gi.argv(1) : "", gi.argc() > 2 ? gi.argv(2) : NULL);
 }
 
 /**
