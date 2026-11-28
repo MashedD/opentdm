@@ -228,6 +228,7 @@ void InitGame(void) {
 
     // players idle this long will be switched to specs (in seconds)
     g_idle_time = gi.cvar("g_idle_time", "300", 0);
+    g_id_view = gi.cvar("g_id_view", "1", 0);
 
     // seconds intermission lasts at end of match
     g_intermission_time = gi.cvar("g_intermission_time", "5", 0);

@@ -2095,6 +2095,10 @@ void TDM_Ghost_f(edict_t *ent) {
  * Toggle player id display
  */
 void TDM_Id_f(edict_t *ent) {
+    if (!g_id_view->value) {
+        gi.cprintf(ent, PRINT_HIGH, "Player identification is disabled on this server.\n");
+        return;
+    }
     ent->client->pers.disable_id_view = !ent->client->pers.disable_id_view;
     gi.cprintf(ent, PRINT_HIGH,
             "Player identification display is now %sabled.\n",

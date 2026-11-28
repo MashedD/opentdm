@@ -6,6 +6,15 @@ All notable changes to this fork are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-11-28
+
+### Added
+
+- `g_id_view` turns player identification (the name shown when aiming at a
+  player) off for everyone when set to 0, as tournament rules such as
+  DropSlugs require. The default, 1, keeps it on, and players can still turn
+  it off for themselves with `id`.
+
 ## [1.1.1] - 2026-11-28
 
 ### Fixed

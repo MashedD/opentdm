@@ -765,6 +765,7 @@ extern cvar_t *g_max_timeout;
 extern cvar_t *g_1v1_timeout;
 extern cvar_t *g_chat_mode;
 extern cvar_t *g_idle_time;
+extern cvar_t *g_id_view;
 extern cvar_t *g_http_enabled;
 extern cvar_t *g_http_bind;
 extern cvar_t *g_http_proxy;
