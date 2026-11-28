@@ -291,7 +291,8 @@ void G_SetStats(edict_t *ent) {
 
     cells = 0;
     ent->client->ps.stats[STAT_ID_VIEW_INDEX] = 0;
-    if (!ent->client->pers.disable_id_view) {
+    // g_id_view 0 turns player identification off for everyone (tournament rules)
+    if (g_id_view->value && !ent->client->pers.disable_id_view) {
         if (TDM_GetPlayerIdView(ent)) {
             ent->client->ps.stats[STAT_ID_VIEW_INDEX] = CS_TDM_ID_VIEW;
         }
